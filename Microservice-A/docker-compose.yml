@@ -1,0 +1,18 @@
+version: '3.3'
+services:
+    fluid-a:
+        container_name: FLUID-SERVICE-A
+        image: flycamsafety/fluid-a:latest
+        restart: always
+        platform: linux/amd64
+        environment:
+            # RabbitMQ
+            - RABBITMQ_HOST=localhost
+            - RABBITMQ_AMQP_PORT=5672
+            - RABBITMQ_USERNAME=guest
+            - RABBITMQ_PASSWORD=guest
+            - RABBITMQ_VHOST=/
+            # Webserver
+            - WS_PORT=8080
+        build:
+            dockerfile: ./Dockerfile
