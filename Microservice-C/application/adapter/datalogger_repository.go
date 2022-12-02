@@ -1,0 +1,7 @@
+package adapter
+
+import "github.com/m4rc0nd35/test-fluid/application/entity"
+
+type DataLoggerRepository interface {
+	Create(data entity.DataLogger) string
+}
