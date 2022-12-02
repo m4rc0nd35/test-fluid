@@ -2,7 +2,6 @@ package domain
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -20,9 +19,10 @@ type config struct {
 	entryID   cron.EntryID
 	amqpx     adapter.Amqp
 	getLimit  int
+	logs      adapter.AdapterDataLogger
 }
 
-func NewLead(amqpx adapter.Amqp) *config {
+func NewLead(amqpx adapter.Amqp, logs adapter.AdapterDataLogger) *config {
 	return &config{
 		true,        // Default running
 		cron.New(),  // Init instance cron
@@ -30,23 +30,20 @@ func NewLead(amqpx adapter.Amqp) *config {
 		0,           // Default entry cron ID
 		amqpx,       // Adapter amqp
 		1,           // Default limit lead by job
+		logs,
 	}
 }
 
 func (cfg *config) GetLeadApi() {
-	// Add new scheduler
+	// Add new scheduler cron
 	cfg.entryID, _ = cfg.cron.AddFunc(cfg.scheduler, func() {
 		client := &http.Client{}
 		leads := entity.Leads{} // received
 
-		go func() {
-			fmt.Println("Gorouting")
-		}()
+		var totalGet = 0
+		for totalGet < cfg.getLimit {
 
-		totalGetSuccess := 0
-		for totalGetSuccess < cfg.getLimit {
-
-			// get new leads in API Ranbom User
+			// get new leads in API Random User
 			req, err := http.NewRequest("GET", "https://randomuser.me/api/", strings.NewReader(""))
 			if err != nil {
 				log.Println("Error on response.\n[ERROR- ", err)
@@ -73,24 +70,29 @@ func (cfg *config) GetLeadApi() {
 				return
 			}
 
-			// multiple leads by request
+			// leads by request
 			for _, user := range leads.Results {
-				user.StatusFlow = "new"                               // Changed status
-				totalGetSuccess++                                     // Increase total lead
-				jsonNewLead, _ := json.Marshal(user)                  // Struct to JSON
-				cfg.amqpx.SendToQueu("new-lead", string(jsonNewLead)) // Send amqp queue
+				user.StatusFlow = "new" // Changed status
 
-				log.Println("[ RUNNNING ] get:", totalGetSuccess)
+				totalGet++ // Increase total lead
+
+				// Data Logger
+				cfg.logs.LogQueue(user)
+
+				jsonNewLead, _ := json.Marshal(user)                     // Struct to JSON
+				cfg.amqpx.SendToQueu("fluid-new-H", string(jsonNewLead)) // Send amqp queue
+
+				log.Println("[ RUNNNING ] get:", totalGet)
 
 				// Break when limit
-				if totalGetSuccess >= cfg.getLimit {
+				if totalGet >= cfg.getLimit {
 					break
 				}
 			}
+
+			log.Println("Get leads by API random user finished", totalGet)
 		}
 
-		log.Println("Get leads by API random user total:", totalGetSuccess)
-		// send to queue new-lead
 	})
 }
 

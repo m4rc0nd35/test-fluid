@@ -45,7 +45,9 @@ func (c *config) Webserver(lead adapter.LeadAdapter) {
 		if command.Running {
 			lead.SetScheduler(command.Scheduler)
 			lead.SetGetLimit(command.GetLimit)
-		} else {
+		}
+
+		if !command.Running {
 			lead.RemoveScheduler()
 		}
 

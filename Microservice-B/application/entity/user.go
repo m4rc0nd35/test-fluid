@@ -66,7 +66,7 @@ type Picture struct {
 type User struct {
 	Gender     string `json:"gender"`
 	Name       `json:"name"`
-	StatusFlow string `json:"statusFlow"` // new, processing, processed, declined
+	StatusFlow string `json:"statusFlow"` // new, processing, processed, recused
 	Location   `json:"location"`
 	Email      string `json:"email"`
 	Login      `json:"login"`

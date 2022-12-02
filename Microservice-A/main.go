@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/m4rc0nd35/test-fluid/application/controller"
 	"github.com/m4rc0nd35/test-fluid/application/toolkit"
@@ -11,6 +12,8 @@ import (
 )
 
 func main() {
+	runtime.GOMAXPROCS(1)
+
 	rabbitMQ, err := service.NewConnectAMQP(
 		os.Getenv("RABBITMQ_HOST"),
 		os.Getenv("RABBITMQ_AMQP_PORT"),
@@ -20,7 +23,11 @@ func main() {
 	)
 	toolkit.Error(err)
 
-	lead := domain.NewLead(rabbitMQ)
+	// Logger queue
+	logs := toolkit.NewDataLogger(rabbitMQ)
+
+	// New leads
+	lead := domain.NewLead(rabbitMQ, logs)
 	lead.GetLeadApi() // Init
 	lead.Start()
 
