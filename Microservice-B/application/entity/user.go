@@ -59,7 +59,7 @@ type Id struct {
 
 type Picture struct {
 	Large     string `json:"large"`
-	Medium    string `json:"madium"`
+	Medium    string `json:"medium"`
 	Thumbnail string `json:"thumbnail"`
 }
 

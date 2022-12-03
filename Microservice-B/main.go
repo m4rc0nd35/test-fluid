@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"runtime"
+	"sync"
 
 	"github.com/m4rc0nd35/test-fluid/application/toolkit"
 	"github.com/m4rc0nd35/test-fluid/domain"
@@ -12,7 +14,9 @@ import (
 
 func main() {
 	runtime.GOMAXPROCS(1)
-	ch := make(chan int)
+	fmt.Println("v1.0.0")
+	var wg sync.WaitGroup
+	wg.Add(1)
 
 	rabbitMQ, err := service.NewConnectAMQP(
 		os.Getenv("RABBITMQ_HOST"),
@@ -26,10 +30,11 @@ func main() {
 	// Logger queue
 	logs := toolkit.NewDataLogger(rabbitMQ)
 
-	new := domain.NewFlow(rabbitMQ, logs)
+	newLead := domain.NewFlow(rabbitMQ, logs)
+	processingLead := domain.NewProcessingFlow(rabbitMQ, logs)
 
 	rabbitMQ.ConsumerQueue("fluid-new-H", 1, func(body string, ch *amqp.Channel, id uint64) {
-		err := new.WorkerNewFlow(&body)
+		err := newLead.WorkerNewFlow(&body)
 		if !err {
 			ch.Nack(id, false, true)
 			return
@@ -39,10 +44,24 @@ func main() {
 		ch.Ack(id, false)
 	})
 
-	rabbitMQ.ConsumerQueue("fluid-recused-J", 1, func(body string, ch *amqp.Channel, id uint64) {
-		new.Recused()
+	// Queue I
+	rabbitMQ.ConsumerQueue("fluid-processing-I", 1, func(body string, ch *amqp.Channel, id uint64) {
+		err := processingLead.WorkerProcessingFlow(&body)
+		if !err {
+			ch.Nack(id, false, true)
+			return
+		}
+
+		// Success
 		ch.Ack(id, false)
 	})
 
-	<-ch
+	// Queue J
+	rabbitMQ.ConsumerQueue("fluid-recused-J", 1, func(body string, ch *amqp.Channel, id uint64) {
+		processingLead.Recused()
+		ch.Ack(id, false)
+	})
+
+	// Keep alive
+	wg.Wait()
 }
