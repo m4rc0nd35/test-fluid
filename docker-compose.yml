@@ -3,6 +3,8 @@ version: "3.3"
 services:
     mongo:
         image: mongo
+        container_name: mongodb
+        hostname: mongodb
         restart: always
         volumes:
             - ~/mongo/data:/data/db
@@ -11,3 +13,84 @@ services:
             MONGO_INITDB_ROOT_PASSWORD: 321654
         ports:
             - 27017:27017
+    rabbitmq:
+        image: rabbitmq:3.10.6-management-alpine
+        container_name: rabbitmq
+        hostname: rabbitmq
+        ports:
+            - 15672:15672
+            - 5672:5672
+        volumes:
+            - $PWD/storage/rabbitmq1:/var/lib/rabbitmq
+        environment:
+            - RABBITMQ_ERLANG_COOKIE=skdjfhsiedjhfsidhjsfd
+            - RABBITMQ_DEFAULT_USER=guest
+            - RABBITMQ_DEFAULT_PASS=guest
+            - CLUSTERED=false
+    fluid-a:
+        container_name: FLUID-SERVICE-A
+        image: flycamsafety/fluid-a:latest
+        restart: always
+        cpus: 0.5
+        mem_reservation: "50M"
+        mem_limit: "250M"
+        ports:
+          - 8080:8080
+        depends_on: 
+            - mongo
+            - rabbitmq
+        healthcheck:
+            test: curl --fail http://rabbitmq:15672 || exit 1
+            interval: 60s
+            retries: 5
+            start_period: 30s
+            timeout: 60s
+        environment:
+            # RabbitMQ
+            - RABBITMQ_HOST=rabbitmq
+            - RABBITMQ_AMQP_PORT=5672
+            - RABBITMQ_USERNAME=guest
+            - RABBITMQ_PASSWORD=guest
+            - RABBITMQ_VHOST=/
+    fluid-b:
+        container_name: FLUID-SERVICE-B
+        image: flycamsafety/fluid-b:latest
+        restart: always
+        cpus: 0.5
+        mem_reservation: "50M"
+        mem_limit: "250M"
+        depends_on: 
+            - mongo
+            - rabbitmq
+        environment:
+            # RabbitMQ
+            - RABBITMQ_HOST=rabbitmq
+            - RABBITMQ_AMQP_PORT=5672
+            - RABBITMQ_USERNAME=guest
+            - RABBITMQ_PASSWORD=guest
+            - RABBITMQ_VHOST=/
+            - QUEUE_RCV_PROCESSING=fluid-processing-I
+    fluid-c:
+        container_name: FLUID-SERVICE-C
+        image: flycamsafety/fluid-c:latest
+        restart: always
+        cpus: 0.5
+        mem_reservation: "50M"
+        mem_limit: "250M"
+        ports:
+            - 8081:8081
+        depends_on: 
+            - mongo
+            - rabbitmq
+        environment:
+            # RabbitMQ
+            - RABBITMQ_HOST=rabbitmq
+            - RABBITMQ_AMQP_PORT=5672
+            - RABBITMQ_USERNAME=guest
+            - RABBITMQ_PASSWORD=guest
+            - RABBITMQ_VHOST=/
+            # MongoDB
+            - MONGODB_HOST=mongo
+            - MONGODB_PORT=27017
+            - MONGODB_USERNAME=root 
+            - MONGODB_PASSWORD=321654 
