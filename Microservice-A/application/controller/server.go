@@ -30,14 +30,14 @@ func (c *config) Webserver(lead adapter.LeadAdapter) {
 	var command Command
 
 	// c.router.Use(gin.Logger())
-	c.router.POST("/command", func(ctx_res *gin.Context) {
-		ctx_res.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		ctx_res.Writer.Header().Set("Access-Control-Allow-Methods", "GET")
-		ctx_res.Writer.Header().Set("Content-Type", "application/json")
+	c.router.POST("/command", func(ctx *gin.Context) {
+		ctx.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		ctx.Writer.Header().Set("Access-Control-Allow-Methods", "GET")
+		ctx.Writer.Header().Set("Content-Type", "application/json")
 
-		err := ctx_res.ShouldBindJSON(&command)
+		err := ctx.ShouldBindJSON(&command)
 		if err != nil {
-			ctx_res.JSON(http.StatusBadRequest, "Internal error")
+			ctx.JSON(http.StatusBadRequest, "Internal error")
 			return
 		}
 
@@ -52,7 +52,7 @@ func (c *config) Webserver(lead adapter.LeadAdapter) {
 		}
 
 		// return response
-		ctx_res.JSON(http.StatusOK, command)
+		ctx.JSON(http.StatusOK, command)
 	})
 }
 

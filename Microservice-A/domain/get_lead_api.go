@@ -90,9 +90,9 @@ func (cfg *config) GetLeadApi() {
 				}
 			}
 
-			log.Println("Get leads by API random user finished", totalGet)
 		}
 
+		log.Println("Get leads by API random user finished", totalGet)
 	})
 }
 
