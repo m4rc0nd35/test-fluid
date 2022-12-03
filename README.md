@@ -17,7 +17,7 @@
 
 
 ### Microservice A
-- Link set for params cron, pause and lead limit by job [Settings](http://localhost:8080/setting)
+- Link set for params cron, pause and lead limit by job POST [Settings](http://localhost:8080/setting)
 ```
 {
     "pause": false,
