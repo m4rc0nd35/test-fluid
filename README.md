@@ -17,7 +17,7 @@
 
 
 ### Microservice A
-Link set for params cron, pause and lead limit by job [Settings](http://localhost:8080/setting)
+- Link set for params cron, pause and lead limit by job [Settings](http://localhost:8080/setting)
 ```
 {
     "pause": false,
@@ -41,10 +41,10 @@ Link set for params cron, pause and lead limit by job [Settings](http://localhos
 ```
 - Only processing of queue
 ```
+
+### Microservice C
 - Get all lead data GET [Link](http://localhost:8081/lead/all)
 - Get data lead by uuid GET [Link](http://localhost:8081/lead/fff693bc-f5e9-48de-ab2b-9e83d39fa2c3)
-### Microservice C
-
 ```json
 {
         "gender": "male",
