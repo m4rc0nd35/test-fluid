@@ -39,5 +39,69 @@ Link set for params cron, pause and lead limit by job [Settings](http://localhos
 
 ### Microservice B
 ```
+- Only processing of queue
+```
+Get all lead data GET [Link](http://localhost:8081/lead/all)
+Get data lead by uuid GET [Link](http://localhost:8081/lead/fff693bc-f5e9-48de-ab2b-9e83d39fa2c3)
+### Microservice C
 
+```json
+{
+        "gender": "male",
+        "name": {
+            "title": "Mr",
+            "first": "سام",
+            "last": "کریمی"
+        },
+        "statusFlow": "processed",
+        "location": {
+            "street": {
+                "number": 7983,
+                "name": "فاطمی"
+            },
+            "city": "همدان",
+            "state": "خوزستان",
+            "country": "Iran",
+            "postcode": 84532,
+            "coordinates": {
+                "latitude": "17.3658",
+                "longitude": "-166.6431"
+            },
+            "timezone": {
+                "offset": "-8:00",
+                "description": "Pacific Time (US & Canada)"
+            }
+        },
+        "email": "sm.khrymy@example.com",
+        "login": {
+            "uuid": "6d2c8c5d-ad34-4a69-8c18-9b282abf96db",
+            "username": "beautifulleopard657",
+            "password": "sanchez",
+            "salt": "OZorQALc",
+            "md5": "2827781ac3ac3b0331a21ebdded2c4ea",
+            "sha1": "312c89d83559d0229ee183622c27d599ca265aa7",
+            "sha256": "67006e948879b7152d4350726fecdd4247555a7367e6e72fe5ff55c492844f95"
+        },
+        "dob": {
+            "date": "1986-10-30T13:34:47.963Z",
+            "age": 36
+        },
+        "registered": {
+            "date": "2005-03-29T19:26:32.421Z",
+            "age": 17
+        },
+        "phone": "016-79548777",
+        "cell": "0909-087-8563",
+        "id": {
+            "name": "",
+            "value": "086028195"
+        },
+        "picture": {
+            "large": "https://randomuser.me/api/portraits/men/55.jpg",
+            "medium": "https://randomuser.me/api/portraits/med/men/55.jpg",
+            "thumbnail": "https://randomuser.me/api/portraits/thumb/men/55.jpg"
+        },
+        "nat": "IR",
+        "createdAt": "2022-12-03T02:44:26Z"
+    }
 ```
