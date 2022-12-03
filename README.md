@@ -41,8 +41,8 @@ Link set for params cron, pause and lead limit by job [Settings](http://localhos
 ```
 - Only processing of queue
 ```
-Get all lead data GET [Link](http://localhost:8081/lead/all)
-Get data lead by uuid GET [Link](http://localhost:8081/lead/fff693bc-f5e9-48de-ab2b-9e83d39fa2c3)
+- Get all lead data GET [Link](http://localhost:8081/lead/all)
+- Get data lead by uuid GET [Link](http://localhost:8081/lead/fff693bc-f5e9-48de-ab2b-9e83d39fa2c3)
 ### Microservice C
 
 ```json
