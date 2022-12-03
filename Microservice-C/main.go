@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 	"runtime"
-	"sync"
 
+	"github.com/m4rc0nd35/test-fluid/application/controller"
 	"github.com/m4rc0nd35/test-fluid/application/repository"
 	"github.com/m4rc0nd35/test-fluid/application/toolkit"
 	"github.com/m4rc0nd35/test-fluid/domain"
@@ -16,8 +16,6 @@ import (
 func main() {
 	runtime.GOMAXPROCS(1)
 	fmt.Println("v1.0.0")
-	var wg sync.WaitGroup
-	wg.Add(1)
 
 	rabbitMQ, err := service.NewConnectAMQP(
 		os.Getenv("RABBITMQ_HOST"),
@@ -36,18 +34,21 @@ func main() {
 	)
 	toolkit.Error(err)
 
-	logRepo := repository.NewDataLoggerRepository(connectionMongo)
+	webserver := controller.NewWebServer()
 
-	logDomain := domain.NewDataLogger(rabbitMQ, logRepo)
-
-	// rabbitMQ.ConsumerQueue("fluid-processed-K", 1, func(body string, ch *amqp.Channel, id uint64) {
-
-	// 	// Success
-	// 	// ch.Ack(id, false)
-	// })
-
+	// DataLogger
+	logRepo := repository.NewDataLogger(connectionMongo)
+	logDomain := domain.NewDataLogger(logRepo)
 	rabbitMQ.ConsumerQueue("fluid-logs-all", 1, logDomain.DataLogger)
+	webserver.DataLoggerOneWS(logDomain)
+	webserver.DataLoggerStatsWS(logDomain)
 
-	// Keep alive
-	wg.Wait()
+	// Lead
+	leadRepo := repository.NewLead(connectionMongo)
+	leadDomain := domain.NewLead(leadRepo)
+	rabbitMQ.ConsumerQueue("fluid-processed-K", 1, leadDomain.Lead)
+	webserver.LeadOneWS(leadDomain) // Endpoint lead by uuid
+	webserver.LeadAllWS(leadDomain) // Endpoint leads all
+
+	webserver.RunWebServer(":8081")
 }

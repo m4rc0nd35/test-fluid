@@ -12,47 +12,77 @@ type config struct {
 	router *gin.Engine
 }
 
-type Command struct {
-	Running   bool   `json:"running"`
-	Scheduler string `json:"cron"`
-	GetLimit  int    `json:"getLimit"`
-}
-
 func NewWebServer() *config {
 	return &config{
 		gin.New(), // Init contex gin
 	}
 }
 
-func (c *config) Webserver(lead adapter.LeadAdapter) {
-	defer toolkit.Recover("WebServer A")
-
-	var command Command
+func (c *config) DataLoggerOneWS(lead adapter.DataLoggerDomain) {
+	defer toolkit.Recover("WebServer C")
 
 	// c.router.Use(gin.Logger())
-	c.router.POST("/command", func(ctx_res *gin.Context) {
-		ctx_res.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		ctx_res.Writer.Header().Set("Access-Control-Allow-Methods", "GET")
-		ctx_res.Writer.Header().Set("Content-Type", "application/json")
+	c.router.GET("/datalogger/:uuid", func(ctx *gin.Context) {
+		ctx.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		ctx.Writer.Header().Set("Access-Control-Allow-Methods", "GET")
+		ctx.Writer.Header().Set("Content-Type", "application/json")
 
-		err := ctx_res.ShouldBindJSON(&command)
-		if err != nil {
-			ctx_res.JSON(http.StatusBadRequest, "Internal error")
+		uuid, err := ctx.Params.Get("uuid")
+		if !err {
+			ctx.JSON(http.StatusBadRequest, "Internal error")
 			return
 		}
 
-		// changed scheduler
-		if command.Running {
-			lead.SetScheduler(command.Scheduler)
-			lead.SetGetLimit(command.GetLimit)
-		}
+		// return response
+		ctx.JSON(http.StatusOK, lead.FindDataLoggerById(uuid))
+	})
+}
 
-		if !command.Running {
-			lead.RemoveScheduler()
+func (c *config) DataLoggerStatsWS(lead adapter.DataLoggerDomain) {
+	defer toolkit.Recover("WebServer C")
+
+	// c.router.Use(gin.Logger())
+	c.router.GET("/datalogger/stats", func(ctx *gin.Context) {
+		ctx.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		ctx.Writer.Header().Set("Access-Control-Allow-Methods", "GET")
+		ctx.Writer.Header().Set("Content-Type", "application/json")
+
+		// return response
+		ctx.JSON(http.StatusOK, lead.DataLoggerStats())
+	})
+}
+
+func (c *config) LeadOneWS(lead adapter.LeadDomain) {
+	defer toolkit.Recover("WebServer C")
+
+	// c.router.Use(gin.Logger())
+	c.router.GET("/lead/:uuid", func(ctx *gin.Context) {
+		ctx.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		ctx.Writer.Header().Set("Access-Control-Allow-Methods", "GET")
+		ctx.Writer.Header().Set("Content-Type", "application/json")
+
+		uuid, err := ctx.Params.Get("uuid")
+		if !err {
+			ctx.JSON(http.StatusBadRequest, "Internal error")
+			return
 		}
 
 		// return response
-		ctx_res.JSON(http.StatusOK, command)
+		ctx.JSON(http.StatusOK, lead.FindOneLead(uuid))
+	})
+}
+
+func (c *config) LeadAllWS(lead adapter.LeadDomain) {
+	defer toolkit.Recover("WebServer C")
+
+	// c.router.Use(gin.Logger())
+	c.router.GET("/lead/all", func(ctx *gin.Context) {
+		ctx.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		ctx.Writer.Header().Set("Access-Control-Allow-Methods", "GET")
+		ctx.Writer.Header().Set("Content-Type", "application/json")
+
+		// return response
+		ctx.JSON(http.StatusOK, lead.FindAllLead())
 	})
 }
 

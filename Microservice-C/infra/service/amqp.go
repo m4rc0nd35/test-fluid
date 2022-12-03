@@ -127,7 +127,7 @@ func (c *RabbitMQ) ConsumerQueue(queue string, prefetch int, callback func([]byt
 
 	go func() {
 		for d := range msgs {
-			if err := callback(d.Body); !err {
+			if success := callback(d.Body); !success {
 				channel.Nack(d.DeliveryTag, false, true)
 				return
 			}

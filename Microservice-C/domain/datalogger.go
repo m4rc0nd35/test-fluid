@@ -8,24 +8,11 @@ import (
 )
 
 type config struct {
-	amqpx   adapter.Amqp
 	logRepo adapter.DataLoggerRepository
 }
 
-func NewDataLogger(amqpx adapter.Amqp, logRepo adapter.DataLoggerRepository) *config {
-	return &config{amqpx, logRepo}
-}
-
-func (cfg *config) LogQueue(user entity.User) {
-	logUser := entity.DataLogger{
-		Uuid:       user.Login.Uuid,
-		Username:   user.Login.Username,
-		Email:      user.Email,
-		StatusFlow: user.StatusFlow,
-	}
-
-	jsonLog, _ := json.Marshal(logUser)
-	cfg.amqpx.SendToQueu("fluid-logs-all", string(jsonLog)) // logs
+func NewDataLogger(logRepo adapter.DataLoggerRepository) *config {
+	return &config{logRepo}
 }
 
 func (d *config) DataLogger(body []byte) bool {
@@ -39,4 +26,14 @@ func (d *config) DataLogger(body []byte) bool {
 	// insert log
 	d.logRepo.Create(log)
 	return true
+}
+
+func (d *config) FindDataLoggerById(uuid string) []*entity.DataLogger {
+	log, _ := d.logRepo.FindDataLoggerById(uuid)
+	return log
+}
+
+func (d *config) DataLoggerStats() []*entity.Stats {
+	stats, _ := d.logRepo.DataLoggerStats()
+	return stats
 }

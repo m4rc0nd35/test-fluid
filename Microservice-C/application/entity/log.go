@@ -7,3 +7,8 @@ type DataLogger struct {
 	StatusFlow string `json:"statusFlow" bson:"statusFlow"`
 	CreatedAt  string `json:"createdAt" bson:"createdAt"`
 }
+
+type Stats struct {
+	State string `json:"state" bson:"_id"`
+	Total int    `json:"total" bson:"count"`
+}
