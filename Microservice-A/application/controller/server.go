@@ -13,7 +13,7 @@ type config struct {
 }
 
 type Command struct {
-	Running   bool   `json:"running"`
+	Pause     bool   `json:"pause"`
 	Scheduler string `json:"cron"`
 	GetLimit  int    `json:"getLimit"`
 }
@@ -30,7 +30,7 @@ func (c *config) Webserver(lead adapter.LeadAdapter) {
 	var command Command
 
 	// c.router.Use(gin.Logger())
-	c.router.POST("/command", func(ctx *gin.Context) {
+	c.router.POST("/setting", func(ctx *gin.Context) {
 		ctx.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		ctx.Writer.Header().Set("Access-Control-Allow-Methods", "GET")
 		ctx.Writer.Header().Set("Content-Type", "application/json")
@@ -41,15 +41,9 @@ func (c *config) Webserver(lead adapter.LeadAdapter) {
 			return
 		}
 
-		// changed scheduler
-		if command.Running {
-			lead.SetScheduler(command.Scheduler)
-			lead.SetGetLimit(command.GetLimit)
-		}
-
-		if !command.Running {
-			lead.RemoveScheduler()
-		}
+		lead.SetScheduler(command.Scheduler)
+		lead.SetGetLimit(command.GetLimit)
+		lead.RemoveScheduler(command.Pause)
 
 		// return response
 		ctx.JSON(http.StatusOK, command)

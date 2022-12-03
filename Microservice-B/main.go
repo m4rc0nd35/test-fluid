@@ -9,7 +9,6 @@ import (
 	"github.com/m4rc0nd35/test-fluid/application/toolkit"
 	"github.com/m4rc0nd35/test-fluid/domain"
 	"github.com/m4rc0nd35/test-fluid/infra/service"
-	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func main() {
@@ -28,39 +27,16 @@ func main() {
 	toolkit.Error(err)
 
 	// Logger queue
-	logs := toolkit.NewDataLogger(rabbitMQ)
+	logs := domain.NewDataLogger(rabbitMQ)
 
-	newLead := domain.NewFlow(rabbitMQ, logs)
-	processingLead := domain.NewProcessingFlow(rabbitMQ, logs)
+	// Lead
+	leadDomain := domain.NewFlow(rabbitMQ, logs)
+	rabbitMQ.ConsumerQueue("fluid-new-H", 1, leadDomain.WorkerNewFlow)
 
-	rabbitMQ.ConsumerQueue("fluid-new-H", 1, func(body string, ch *amqp.Channel, id uint64) {
-		err := newLead.WorkerNewFlow(&body)
-		if !err {
-			ch.Nack(id, false, true)
-			return
-		}
-
-		// Success
-		ch.Ack(id, false)
-	})
-
-	// Queue I
-	rabbitMQ.ConsumerQueue("fluid-processing-I", 1, func(body string, ch *amqp.Channel, id uint64) {
-		err := processingLead.WorkerProcessingFlow(&body)
-		if !err {
-			ch.Nack(id, false, true)
-			return
-		}
-
-		// Success
-		ch.Ack(id, false)
-	})
-
-	// Queue J
-	rabbitMQ.ConsumerQueue("fluid-recused-J", 1, func(body string, ch *amqp.Channel, id uint64) {
-		processingLead.Recused()
-		ch.Ack(id, false)
-	})
+	// Pipeline
+	pipeLineDoamin := domain.NewProcessingFlow(rabbitMQ, logs)
+	rabbitMQ.ConsumerQueue("fluid-processing-I", 1, pipeLineDoamin.WorkerProcessingFlow)
+	rabbitMQ.ConsumerQueue("fluid-recused-J", 1, pipeLineDoamin.Recused)
 
 	// Keep alive
 	wg.Wait()

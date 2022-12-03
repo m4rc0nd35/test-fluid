@@ -19,12 +19,12 @@ func NewFlow(amqpx adapter.Amqp, logs adapter.AdapterDataLogger) *config {
 	return &config{amqpx, false, logs}
 }
 
-func (cfg *config) WorkerNewFlow(body *string) bool {
+func (cfg *config) WorkerNewFlow(body []byte) bool {
 
 	user := entity.User{}
 
 	// Json to Struct
-	if err := json.Unmarshal([]byte(*body), &user); err != nil {
+	if err := json.Unmarshal(body, &user); err != nil {
 		log.Println("Error structure JSON lead\n[ERROR- ", err)
 		return false
 	}

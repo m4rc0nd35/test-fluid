@@ -18,7 +18,7 @@ func NewConnectAMQP(master, port, username, password, vhost string) (*RabbitMQ, 
 	var err error
 	cfg := amqp.Config{
 		Properties: amqp.Table{
-			"connection_name": fmt.Sprint("DATA_WORKER-DATACENTER-MANAGER"),
+			"connection_name": fmt.Sprint("MICROSERVICE-C"),
 		},
 	}
 

@@ -13,6 +13,7 @@ import (
 
 func main() {
 	runtime.GOMAXPROCS(1)
+	fmt.Println("v1.0.0")
 
 	rabbitMQ, err := service.NewConnectAMQP(
 		os.Getenv("RABBITMQ_HOST"),
@@ -23,6 +24,9 @@ func main() {
 	)
 	toolkit.Error(err)
 
+	// Webserver command
+	ws := controller.NewWebServer()
+
 	// Logger queue
 	logs := toolkit.NewDataLogger(rabbitMQ)
 
@@ -30,10 +34,7 @@ func main() {
 	lead := domain.NewLead(rabbitMQ, logs)
 	lead.GetLeadApi() // Init
 	lead.Start()
-
-	// Webserver command
-	ws := controller.NewWebServer()
-
 	ws.Webserver(lead)
-	ws.RunWebServer(fmt.Sprint(":", os.Getenv("WS_PORT")))
+
+	ws.RunWebServer(":8080")
 }

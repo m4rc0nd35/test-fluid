@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -9,7 +10,6 @@ import (
 
 type RabbitMQ struct {
 	Connection  *amqp.Connection
-	Channel     amqp.Channel
 	IsConnected bool
 }
 
@@ -18,7 +18,7 @@ func NewConnectAMQP(master, port, username, password, vhost string) (*RabbitMQ, 
 	var err error
 	cfg := amqp.Config{
 		Properties: amqp.Table{
-			"connection_name": fmt.Sprint("MICROSERVICE-A"),
+			"connection_name": fmt.Sprint("MICROSERVICE-B"),
 		},
 	}
 
@@ -82,14 +82,15 @@ func (c *RabbitMQ) SendToQueu(queue string, txt string) error {
 /*
 (queue name string, callback name func(body receiver string, channel receiver *amqp.Channel, delivery tag uint64))
 */
-func (c *RabbitMQ) ConsumerQueue(queue string, prefetch int, callback func(string, *amqp.Channel, uint64)) error {
+func (c *RabbitMQ) ConsumerQueue(queue string, prefetch int, callback func([]byte) bool) error {
+	var err error
 	if !c.IsConnected {
-		return fmt.Errorf("Connection is closed")
+		return errors.New("Connection is closed")
 	}
 
 	channel, err := c.Connection.Channel()
 	if err != nil {
-		return fmt.Errorf("Channel: %s", err)
+		return err
 	}
 
 	channel.Qos(
@@ -106,6 +107,9 @@ func (c *RabbitMQ) ConsumerQueue(queue string, prefetch int, callback func(strin
 		false, // no-wait
 		nil,   // arguments
 	)
+	if err != nil {
+		return err
+	}
 
 	msgs, err := channel.Consume(
 		queueDeclared.Name, // queue
@@ -117,9 +121,17 @@ func (c *RabbitMQ) ConsumerQueue(queue string, prefetch int, callback func(strin
 		nil,                // args
 	)
 
+	if err != nil {
+		return err
+	}
+
 	go func() {
 		for d := range msgs {
-			callback(string(d.Body), channel, d.DeliveryTag)
+			if success := callback(d.Body); !success {
+				channel.Nack(d.DeliveryTag, false, true)
+				return
+			}
+			channel.Ack(d.DeliveryTag, false)
 		}
 	}()
 

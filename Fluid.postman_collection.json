@@ -1,0 +1,113 @@
+{
+	"info": {
+		"_postman_id": "3d7fbd36-8ca4-4619-a7e8-27c4f11c7044",
+		"name": "Fluid",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9642318"
+	},
+	"item": [
+		{
+			"name": "Set params job",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"pause\": false,\n    \"getLimit\": 500,\n    \"cron\": \"5 * * * *\"\n}\n// Running true | false\n// getLimit int (limit conquest lead by job)\n// Cron:\n// * * * * *\n// | | | | |\n// | | | | |\n// | | | | +---- Day of week  (interval: 1-7)\n// | | | +------ Month        (interval: 1-12)\n// | | +-------- Day          (interval: 1-31)\n// | +---------- Hour         (interval: 0-23)\n// +------------ Minute       (interval: 0-59)\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/setting",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"setting"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find one lead by uuid",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/lead/65faf8f3-d52b-4f52-9293-dc86ba8bfed2",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"lead",
+						"65faf8f3-d52b-4f52-9293-dc86ba8bfed2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find all lead",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/lead/all",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"lead",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find history status by uuid",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/datalogger/fff693bc-f5e9-48de-ab2b-9e83d39fa2c3",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"datalogger",
+						"fff693bc-f5e9-48de-ab2b-9e83d39fa2c3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Stats",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/datalogger/stats",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"datalogger",
+						"stats"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

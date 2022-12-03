@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/m4rc0nd35/test-fluid/application/adapter"
 	"github.com/m4rc0nd35/test-fluid/application/entity"
@@ -22,6 +23,8 @@ type config struct {
 	logs      adapter.AdapterDataLogger
 }
 
+var pause = false
+
 func NewLead(amqpx adapter.Amqp, logs adapter.AdapterDataLogger) *config {
 	return &config{
 		true,        // Default running
@@ -36,12 +39,17 @@ func NewLead(amqpx adapter.Amqp, logs adapter.AdapterDataLogger) *config {
 
 func (cfg *config) GetLeadApi() {
 	// Add new scheduler cron
+	cfg.cron.Remove(cfg.entryID)
 	cfg.entryID, _ = cfg.cron.AddFunc(cfg.scheduler, func() {
 		client := &http.Client{}
 		leads := entity.Leads{} // received
 
 		var totalGet = 0
 		for totalGet < cfg.getLimit {
+
+			for pause {
+				time.Sleep(time.Second)
+			}
 
 			// get new leads in API Random User
 			req, err := http.NewRequest("GET", "https://randomuser.me/api/", strings.NewReader(""))
@@ -113,10 +121,11 @@ func (cfg *config) SetScheduler(scheduler string) {
 	cfg.GetLeadApi()
 }
 
-func (cfg *config) RemoveScheduler() {
+func (cfg *config) RemoveScheduler(p bool) {
 	// remove cron by ID
-	cfg.cron.Remove(cfg.entryID)
-	cfg.entryID = 0
+	// cfg.cron.Remove(cfg.entryID)
+	// cfg.entryID = 0
+	pause = p
 }
 
 // * * * * *

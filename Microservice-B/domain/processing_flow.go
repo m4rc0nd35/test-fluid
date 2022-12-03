@@ -19,12 +19,11 @@ func NewProcessingFlow(amqpx adapter.Amqp, logs adapter.AdapterDataLogger) *conf
 	return &configProcessing{amqpx, false, logs}
 }
 
-func (cfg *configProcessing) WorkerProcessingFlow(body *string) bool {
-
+func (cfg *configProcessing) WorkerProcessingFlow(body []byte) bool {
 	user := entity.User{}
 
 	// Json to Struct
-	if err := json.Unmarshal([]byte(*body), &user); err != nil {
+	if err := json.Unmarshal(body, &user); err != nil {
 		log.Println("Error structure JSON lead\n[ERROR- ", err)
 		return false
 	}
@@ -54,6 +53,7 @@ func (cfg *configProcessing) WorkerProcessingFlow(body *string) bool {
 	return true
 }
 
-func (cfg *configProcessing) Recused() {
+func (cfg *configProcessing) Recused(body []byte) bool {
 	cfg.recused = true
+	return true
 }
