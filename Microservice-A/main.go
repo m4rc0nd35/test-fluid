@@ -6,6 +6,7 @@ import (
 	"runtime"
 
 	"github.com/m4rc0nd35/test-fluid/application/controller"
+	"github.com/m4rc0nd35/test-fluid/application/repossitory"
 	"github.com/m4rc0nd35/test-fluid/application/toolkit"
 	"github.com/m4rc0nd35/test-fluid/domain"
 	"github.com/m4rc0nd35/test-fluid/infra/service"
@@ -25,16 +26,17 @@ func main() {
 	toolkit.Error(err)
 
 	// Webserver command
-	ws := controller.NewWebServer()
+	webserver := controller.NewWebServer()
 
 	// Logger queue
-	logs := toolkit.NewDataLogger(rabbitMQ)
+	logs := domain.NewDataLogger(rabbitMQ)
 
 	// New leads
-	lead := domain.NewLead(rabbitMQ, logs)
+	leadRepo := repossitory.NewLeadApi()
+	lead := domain.NewLead(rabbitMQ, leadRepo, logs)
 	lead.GetLeadApi() // Init
 	lead.Start()
-	ws.Webserver(lead)
+	webserver.Webserver(lead)
 
-	ws.RunWebServer(":8080")
+	webserver.RunWebServer(":8080")
 }

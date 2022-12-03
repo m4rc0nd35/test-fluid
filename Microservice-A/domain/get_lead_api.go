@@ -2,10 +2,7 @@ package domain
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
-	"net/http"
-	"strings"
 	"time"
 
 	"github.com/m4rc0nd35/test-fluid/application/adapter"
@@ -20,12 +17,13 @@ type config struct {
 	entryID   cron.EntryID
 	amqpx     adapter.Amqp
 	getLimit  int
+	leadRepo  adapter.LeadRepository
 	logs      adapter.AdapterDataLogger
 }
 
-var pause = false
+var pause = false // Global
 
-func NewLead(amqpx adapter.Amqp, logs adapter.AdapterDataLogger) *config {
+func NewLead(amqpx adapter.Amqp, leadRepo adapter.LeadRepository, logs adapter.AdapterDataLogger) *config {
 	return &config{
 		true,        // Default running
 		cron.New(),  // Init instance cron
@@ -33,15 +31,15 @@ func NewLead(amqpx adapter.Amqp, logs adapter.AdapterDataLogger) *config {
 		0,           // Default entry cron ID
 		amqpx,       // Adapter amqp
 		1,           // Default limit lead by job
+		leadRepo,
 		logs,
 	}
 }
 
-func (cfg *config) GetLeadApi() {
+func (cfg *config) GetLeadApi() cron.EntryID {
 	// Add new scheduler cron
 	cfg.cron.Remove(cfg.entryID)
 	cfg.entryID, _ = cfg.cron.AddFunc(cfg.scheduler, func() {
-		client := &http.Client{}
 		leads := entity.Leads{} // received
 
 		var totalGet = 0
@@ -51,29 +49,15 @@ func (cfg *config) GetLeadApi() {
 				time.Sleep(time.Second)
 			}
 
-			// get new leads in API Random User
-			req, err := http.NewRequest("GET", "https://randomuser.me/api/", strings.NewReader(""))
+			// Repository
+			response, err := cfg.leadRepo.GetLead()
 			if err != nil {
-				log.Println("Error on response.\n[ERROR- ", err)
-				return
-			}
-
-			req.Header.Add("Content-Type", "application/json")
-			resp, err := client.Do(req)
-			if err != nil {
-				log.Println("Error on response.\n[ERROR] -", err)
-				return
-			}
-
-			defer req.Body.Close()
-			response, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				log.Println("Error while reading the response\n[ERROR- ", err)
+				log.Println("Error repository JSON lead\n[ERROR- ", err)
 				return
 			}
 
 			// destructure
-			if err := json.Unmarshal(response, &leads); err != nil {
+			if err := json.Unmarshal(*response, &leads); err != nil {
 				log.Println("Error structure JSON lead\n[ERROR- ", err)
 				return
 			}
@@ -97,11 +81,11 @@ func (cfg *config) GetLeadApi() {
 					break
 				}
 			}
-
 		}
 
 		log.Println("Get leads by API random user finished", totalGet)
 	})
+	return cfg.entryID
 }
 
 func (cfg *config) Start() {
@@ -121,10 +105,11 @@ func (cfg *config) SetScheduler(scheduler string) {
 	cfg.GetLeadApi()
 }
 
-func (cfg *config) RemoveScheduler(p bool) {
-	// remove cron by ID
-	// cfg.cron.Remove(cfg.entryID)
-	// cfg.entryID = 0
+func (cfg *config) RemoveScheduler(id cron.EntryID) {
+	cfg.cron.Remove(id)
+}
+
+func (cfg *config) Pause(p bool) {
 	pause = p
 }
 

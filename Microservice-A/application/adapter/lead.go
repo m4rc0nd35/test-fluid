@@ -3,5 +3,9 @@ package adapter
 type LeadAdapter interface {
 	SetScheduler(string)
 	SetGetLimit(int)
-	RemoveScheduler(bool)
+	Pause(bool)
+}
+
+type LeadRepository interface {
+	GetLead() (*[]byte, error)
 }

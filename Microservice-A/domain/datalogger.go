@@ -1,4 +1,4 @@
-package toolkit
+package domain
 
 import (
 	"encoding/json"
@@ -7,15 +7,15 @@ import (
 	"github.com/m4rc0nd35/test-fluid/application/entity"
 )
 
-type config struct {
+type dataLogger struct {
 	amqpx adapter.Amqp
 }
 
-func NewDataLogger(amqpx adapter.Amqp) *config {
-	return &config{amqpx}
+func NewDataLogger(amqpx adapter.Amqp) *dataLogger {
+	return &dataLogger{amqpx}
 }
 
-func (cfg *config) LogQueue(user entity.User) {
+func (cfg *dataLogger) LogQueue(user entity.User) {
 	logUser := entity.Log{
 		Uuid:       user.Login.Uuid,
 		Username:   user.Login.Username,

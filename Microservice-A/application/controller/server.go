@@ -43,7 +43,7 @@ func (c *config) Webserver(lead adapter.LeadAdapter) {
 
 		lead.SetScheduler(command.Scheduler)
 		lead.SetGetLimit(command.GetLimit)
-		lead.RemoveScheduler(command.Pause)
+		lead.Pause(command.Pause)
 
 		// return response
 		ctx.JSON(http.StatusOK, command)
