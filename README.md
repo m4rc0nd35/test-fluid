@@ -17,7 +17,7 @@
 
 
 ### Microservice A
-- Link set for params cron, pause and lead limit by job POST [Settings](http://localhost:8080/setting)
+- Link set for params cron, pause and lead limit by job [PUT Settings](http://localhost:8080/setting)
 ```
 {
     "pause": false,
@@ -43,8 +43,8 @@
 ```
 
 ### Microservice C
-- Get all lead data GET [Link](http://localhost:8081/lead/all)
-- Get data lead by uuid GET [Link](http://localhost:8081/lead/fff693bc-f5e9-48de-ab2b-9e83d39fa2c3)
+- Get all lead data [GET Link](http://localhost:8081/lead/all)
+- Get data lead by uuid [GET Link](http://localhost:8081/lead/fff693bc-f5e9-48de-ab2b-9e83d39fa2c3)
 ```json
 [
     {
@@ -109,7 +109,7 @@
 ]
 ```
 
-- Get stats status real-time GET [Link](http://localhost:8081/datalogger/stats)
+- Get stats status real-time [GET Link](http://localhost:8081/datalogger/stats)
 ```json
 [
     {
@@ -123,7 +123,7 @@
 ]
 ```
 
-- Get all history lead by uuid GET [Link](http://localhost:8081/datalogger/6d2c8c5d-ad34-4a69-8c18-9b282abf96db)
+- Get all history lead by uuid [GET Link](http://localhost:8081/datalogger/6d2c8c5d-ad34-4a69-8c18-9b282abf96db)
 ```json
     {
         "gender": "male",

@@ -8,12 +8,32 @@
 	"item": [
 		{
 			"name": "Set params job",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Should set params\", function () {",
+							"    pm.expect(pm.response).to.json;",
+							"});",
+							"pm.test(\"Should return equal body\", function () {",
+							"    const response = pm.response.json()",
+							"    pm.expect(response).contains(JSON.parse(pm.request.body.raw))",
+							"});",
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
-				"method": "POST",
+				"method": "PUT",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"pause\": false,\n    \"getLimit\": 500,\n    \"cron\": \"5 * * * *\"\n}\n// Running true | false\n// getLimit int (limit conquest lead by job)\n// Cron:\n// * * * * *\n// | | | | |\n// | | | | |\n// | | | | +---- Day of week  (interval: 1-7)\n// | | | +------ Month        (interval: 1-12)\n// | | +-------- Day          (interval: 1-31)\n// | +---------- Hour         (interval: 0-23)\n// +------------ Minute       (interval: 0-59)\n",
+					"raw": "{\n    \"pause\": false,\n    \"getLimit\": 500,\n    \"cron\": \"22 * * * *\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -21,7 +41,8 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:8080/setting",
+					"raw": "http://localhost:8080/setting",
+					"protocol": "http",
 					"host": [
 						"localhost"
 					],
@@ -35,18 +56,37 @@
 		},
 		{
 			"name": "Find one lead by uuid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful GET request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});",
+							"",
+							"pm.test(\"Successful request statusFlow\", function () {",
+							"    const response = pm.response.json()",
+							"    console.log(response)",
+							"    pm.expect(response.statusFlow).to.be.oneOf([\"processing\",\"processed\",\"recused\"])",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8081/lead/65faf8f3-d52b-4f52-9293-dc86ba8bfed2",
+					"raw": "localhost:8081/lead/3eba9d04-c3fc-487d-a721-e291732a4c0a",
 					"host": [
 						"localhost"
 					],
 					"port": "8081",
 					"path": [
 						"lead",
-						"65faf8f3-d52b-4f52-9293-dc86ba8bfed2"
+						"3eba9d04-c3fc-487d-a721-e291732a4c0a"
 					]
 				}
 			},
@@ -54,6 +94,23 @@
 		},
 		{
 			"name": "Find all lead",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful GET request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});",
+							"pm.test(\"Successful request array greater zero\", function () {",
+							"    const response = pm.response.json()",
+							"    pm.expect(response.length).gt(0)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -73,18 +130,36 @@
 		},
 		{
 			"name": "Find history status by uuid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful GET request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});",
+							"",
+							"pm.test(\"Successful request one or more register\", function () {",
+							"    const response = pm.response.json()",
+							"    pm.expect(response.length).gt(0)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8081/datalogger/fff693bc-f5e9-48de-ab2b-9e83d39fa2c3",
+					"raw": "localhost:8081/datalogger/3eba9d04-c3fc-487d-a721-e291732a4c0a",
 					"host": [
 						"localhost"
 					],
 					"port": "8081",
 					"path": [
 						"datalogger",
-						"fff693bc-f5e9-48de-ab2b-9e83d39fa2c3"
+						"3eba9d04-c3fc-487d-a721-e291732a4c0a"
 					]
 				}
 			},
@@ -92,6 +167,24 @@
 		},
 		{
 			"name": "Stats",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful GET request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});",
+							"",
+							"pm.test(\"Successful request one or more register\", function () {",
+							"    const response = pm.response.json()",
+							"    pm.expect(response.length).gt(0)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],

@@ -15,7 +15,7 @@ func NewDataLogger(amqpx adapter.Amqp) *dataLogger {
 	return &dataLogger{amqpx}
 }
 
-func (cfg *dataLogger) LogQueue(user entity.User) {
+func (cfg *dataLogger) LogQueue(user entity.User) bool {
 	logUser := entity.Log{
 		Uuid:       user.Login.Uuid,
 		Username:   user.Login.Username,
@@ -23,6 +23,11 @@ func (cfg *dataLogger) LogQueue(user entity.User) {
 		StatusFlow: user.StatusFlow,
 	}
 
-	jsonLog, _ := json.Marshal(logUser)
+	jsonLog, err := json.Marshal(logUser)
+	if err != nil {
+		return false
+	}
+
 	cfg.amqpx.SendToQueu("fluid-logs-all", string(jsonLog)) // logs
+	return true
 }
