@@ -26,8 +26,10 @@ func TestGetLead(t *testing.T) {
 	// New leads
 	leadRepo := repossitory.NewLeadApi()
 
-	tl := NewLead(rabbitMQ, leadRepo, logs)
-	n := tl.GetLeadApi()
+	lead := NewLead(rabbitMQ, leadRepo, logs)
+	leadCronId := lead.GetLeadApi()
 
-	assert.NotEqual(t, n, 0)
+	assert.NotEqual(t, leadCronId, 0)
+	assert.Nil(t, err)
+	assert.True(t, rabbitMQ.IsConnected)
 }
