@@ -14,6 +14,7 @@
 - [x] 12. Add endpoint find stats of status
 - [x] 13. Unique instance
 - [x] 14. A/B accept multiple instance
+- [x] 15. Documentation and tests integration via postman collection
 
 
 ### Microservice A
@@ -39,7 +40,7 @@
 
 ### Microservice B
 ```
-- Only processing of queue
+- Only processing of lead via queue
 ```
 
 ### Microservice C
