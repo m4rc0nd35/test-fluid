@@ -40,7 +40,7 @@
 
 ### Microservice B
 ```
-- Only processing of queue
+- Only processing of lead via queue
 ```
 
 ### Microservice C
